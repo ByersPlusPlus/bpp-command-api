@@ -16,10 +16,11 @@ dyn_clone::clone_trait_object!(Command<dyn YouTubeSendable>);
 /// Types that implement this trait register commands.
 pub trait CommandRegistrar {
     fn register_command(&mut self, name: &str, aliases: &[&str], command: Box<dyn Command<dyn YouTubeSendable>>);
-    fn send_message(&self, message: &str);
 }
 
+/// Types that implement this trait can send messages to YouTube.
 #[async_trait]
-pub trait YouTubeSendable: Send + Sync {
-    async fn send_message(&self, message: &str);
+pub trait YouTubeSendable: Send + Sync + DynClone {
+    async fn send_message(&mut self, message: &str);
 }
+dyn_clone::clone_trait_object!(YouTubeSendable);
