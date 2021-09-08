@@ -8,7 +8,7 @@ use crate::structs::Message;
 ///
 /// This trait is an async_trait, which means that you can use async/await syntax.
 #[async_trait]
-pub trait Command<YT>: Send + Sync + DynClone where YT: YouTubeSendable {
+pub trait Command<YT>: Send + Sync + DynClone where YT: YouTubeSendable + ?Sized {
     async fn execute(&self, message: Message, sendable: &YT) -> Result<(), CommandError>;
 }
 dyn_clone::clone_trait_object!(Command<dyn YouTubeSendable>);
@@ -19,6 +19,7 @@ pub trait CommandRegistrar {
     fn send_message(&self, message: &str);
 }
 
-pub trait YouTubeSendable {
-    fn send_message(&self, message: &str);
+#[async_trait]
+pub trait YouTubeSendable: Send + Sync {
+    async fn send_message(&self, message: &str);
 }
