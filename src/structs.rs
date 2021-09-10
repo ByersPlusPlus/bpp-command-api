@@ -3,6 +3,10 @@ use log::error;
 
 use crate::message::StringView;
 
+fn from_prost_timestamp(prost_timestamp: &prost_types::Timestamp) -> NaiveDateTime {
+    NaiveDateTime::from_timestamp(prost_timestamp.seconds, prost_timestamp.nanos as u32)
+}
+
 /// A user that sent a message.
 pub struct CommandUser {
     pub channel_id: String,
@@ -11,6 +15,21 @@ pub struct CommandUser {
     pub money: f64,
     pub first_seen_at: NaiveDateTime,
     pub last_seen_at: NaiveDateTime,
+}
+
+impl From<super::userservice::BppUser> for CommandUser {
+    fn from(user: super::userservice::BppUser) -> Self {
+        let first_seen = from_prost_timestamp(&user.first_seen_at.as_ref().unwrap());
+        let last_seen = from_prost_timestamp(&user.last_seen_at.as_ref().unwrap());
+        CommandUser {
+            channel_id: user.channel_id,
+            display_name: user.display_name,
+            active_time: user.hours.unwrap().seconds,
+            money: user.money,
+            first_seen_at: first_seen,
+            last_seen_at: last_seen,
+        }
+    }
 }
 
 /// A message sent by a user.
@@ -31,32 +50,6 @@ pub struct Message {
     ///
     /// If `has_command_info` is false, this will be empty. This can also be empty if there were simply no arguments.
     pub command_args: Vec<String>,
-}
-
-impl CommandUser {
-    /// Creates a new CommandUser
-    pub fn new(channel_id: String, display_name: String, active_time: i64, money: f64, first_seen_at: NaiveDateTime, last_seen_at: NaiveDateTime) -> CommandUser {
-        CommandUser {
-            channel_id,
-            display_name,
-            active_time,
-            money,
-            first_seen_at,
-            last_seen_at,
-        }
-    }
-
-    /// Creates a mock user to use with testing
-    pub fn mock() -> CommandUser {
-        CommandUser {
-            channel_id: "mock".to_string(),
-            display_name: "mock".to_string(),
-            active_time: 0,
-            money: 0.0,
-            first_seen_at: NaiveDateTime::from_timestamp(0, 0),
-            last_seen_at: NaiveDateTime::from_timestamp(0, 0),
-        }
-    }
 }
 
 impl Message {

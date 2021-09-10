@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use dyn_clone::DynClone;
 
 use super::CommandError;
+use super::userservice::user_service_client::UserServiceClient;
 use crate::structs::Message;
 
 /// Types that implement this trait can be registered as a command handler.
@@ -9,7 +10,7 @@ use crate::structs::Message;
 /// This trait is an async_trait, which means that you can use async/await syntax.
 #[async_trait]
 pub trait Command<YT>: Send + Sync + DynClone where YT: YouTubeSendable + ?Sized {
-    async fn execute(&self, message: Message, sendable: &YT) -> Result<(), CommandError>;
+    async fn execute(&self, message: Message, sendable: &mut YT, user_client: &mut UserServiceClient<tonic::transport::Channel>) -> Result<(), CommandError>;
 }
 dyn_clone::clone_trait_object!(Command<dyn YouTubeSendable>);
 

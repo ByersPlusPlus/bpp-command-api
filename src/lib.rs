@@ -17,6 +17,10 @@ custom_error::custom_error! { pub CommandError
     Other { message: &'static str } = "{}",
 }
 
+pub mod userservice {
+    tonic::include_proto!("userservice");
+}
+
 /// Information about the API that will be embedded into the library.
 pub struct CommandDeclaration {
     /// The rustc version that was used to compile API
