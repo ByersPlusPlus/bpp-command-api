@@ -95,7 +95,7 @@ impl StringView {
         if self.eof() {
             return None;
         } else {
-            return Some(self.buffer.chars().nth(self.index as usize).unwrap());
+            return self.buffer.chars().nth(self.index as usize);
         }
     }
 
