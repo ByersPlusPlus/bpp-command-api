@@ -11,8 +11,8 @@ fn from_prost_timestamp(prost_timestamp: &prost_types::Timestamp) -> NaiveDateTi
 }
 
 pub struct ServiceDirectory<'a> {
-    pub userservice_client: &'a UserServiceClient<Channel>,
-    pub youtubeservice_client: &'a YouTubeServiceClient<Channel>,
+    pub userservice_client: &'a mut UserServiceClient<Channel>,
+    pub youtubeservice_client: &'a mut YouTubeServiceClient<Channel>,
 }
 
 /// A user that sent a message.
