@@ -93,7 +93,7 @@ impl StringView {
 
     pub fn current(&self) -> Option<char> {
         if self.eof() {
-            return None;
+            None
         } else {
             return self.buffer.chars().nth(self.index as usize);
         }
@@ -123,7 +123,7 @@ impl StringView {
 
         self.previous = self.index;
         self.index += pos;
-        return self.previous != self.index;
+        self.previous != self.index
     }
 
     pub fn skip_string(&mut self, string: String) -> bool {
@@ -133,35 +133,34 @@ impl StringView {
             self.index += str_len;
             return true;
         }
-        return false;
+        false
     }
 
     pub fn read_rest(&mut self) -> String {
         let result = self.buffer[self.index as usize..].to_string();
         self.previous = self.index;
         self.index = self.end;
-        return result;
+        result
     }
 
     pub fn read(&mut self, length: i32) -> String {
         let result = self.buffer[self.index as usize..(self.index + length) as usize].to_string();
         self.previous = self.index;
         self.index += length;
-        return result;
+        result
     }
 
     pub fn get(&mut self) -> Option<char> {
         let result: Option<char>;
         let index_result = self.buffer.get((self.index + 1) as usize..(self.index + 2) as usize);
-        if index_result.is_none() {
-            result = None;
+        if let Some(index_result) = index_result {
+            result = Some(index_result.chars().next().unwrap());
         } else {
-            let unwrapped_index_result = index_result.unwrap();
-            result = Some(unwrapped_index_result.chars().nth(0).unwrap());
+            result = None;
         }
         self.previous = self.index;
         self.index += 1;
-        return result;
+        result
     }
 
     pub fn get_word(&mut self) -> String {
@@ -185,7 +184,7 @@ impl StringView {
         self.previous = self.index;
         let result = self.buffer[self.index as usize..(self.index + pos) as usize].to_string();
         self.index += pos;
-        return result;
+        result
     }
 
     pub fn get_parameters(&mut self) -> Result<Vec<String>, StringViewError> {
@@ -202,7 +201,7 @@ impl StringView {
             let quoted_word = quoted_word.unwrap();
             parameters.push(quoted_word);
         }
-        return Ok(parameters);
+        Ok(parameters)
     }
 
     pub fn get_quoted_word(&mut self) -> Result<Option<String>, StringViewError> {
@@ -218,7 +217,7 @@ impl StringView {
         let is_quoted = close_quote.is_some();
         if is_quoted {
             result = Vec::new();
-            let close_quote = close_quote.unwrap().chars().nth(0).unwrap();
+            let close_quote = close_quote.unwrap().chars().next().unwrap();
             _escaped_quotes = collection! { current.to_string(), close_quote.to_string() };
         } else {
             result = vec![current];
@@ -272,7 +271,7 @@ impl StringView {
 
             // closing quote
             if is_quoted {
-                let close_quote = close_quote.unwrap().chars().nth(0).unwrap();
+                let close_quote = close_quote.unwrap().chars().next().unwrap();
                 if current_char == close_quote {
                     let next_char = self.get();
                     let valid_eof = next_char.is_none() || next_char.unwrap().is_whitespace();
@@ -293,6 +292,6 @@ impl StringView {
             result.push(current_char);
         }
 
-        return Ok(Some(result.into_iter().collect()));
+        Ok(Some(result.into_iter().collect()))
     }
 }

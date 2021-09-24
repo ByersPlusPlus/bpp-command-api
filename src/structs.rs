@@ -19,8 +19,8 @@ pub struct CommandUser {
 
 impl From<super::userservice::BppUser> for CommandUser {
     fn from(user: super::userservice::BppUser) -> Self {
-        let first_seen = from_prost_timestamp(&user.first_seen_at.as_ref().unwrap());
-        let last_seen = from_prost_timestamp(&user.last_seen_at.as_ref().unwrap());
+        let first_seen = from_prost_timestamp(user.first_seen_at.as_ref().unwrap());
+        let last_seen = from_prost_timestamp(user.last_seen_at.as_ref().unwrap());
         CommandUser {
             channel_id: user.channel_id,
             display_name: user.display_name,
@@ -62,36 +62,35 @@ impl Message {
         let message_copy = message.clone();
         let mut message_view = StringView::new(message);
         let args = message_view.get_parameters();
-        if args.is_err() {
-            error!("Unable to get parameters from message: {}", args.unwrap_err());
-            return Message {
-                user,
-                message: message_copy,
-                has_command_info: false,
-                command_name: String::new(),
-                command_args: Vec::new(),
-            };
-        } else {
-            let args = args.unwrap();
+        if let Ok(args) = args {
             let command_name = args.first().unwrap().clone();
             if args.len() > 1 {
-                let command_args: Vec<String> = args.iter().skip(1).map(|x| x.clone()).collect();
-                return Message {
+                let command_args: Vec<String> = args.iter().skip(1).cloned().collect();
+                Message {
                     user,
                     message: message_copy,
                     command_name,
                     command_args,
                     has_command_info: true,
-                };
+                }
             } else {
-                return Message {
+                Message {
                     user,
                     message: message_copy,
                     command_name,
                     command_args: Vec::new(),
                     has_command_info: true,
-                };
+                }
             }
-        };
+        } else {
+            error!("Unable to get parameters from message: {}", args.unwrap_err());
+            Message {
+                user,
+                message: message_copy,
+                has_command_info: false,
+                command_name: String::new(),
+                command_args: Vec::new(),
+            }
+        }
     }
 }
