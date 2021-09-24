@@ -1,10 +1,18 @@
 use chrono::NaiveDateTime;
 use log::error;
+use super::userservice::user_service_client::UserServiceClient;
+use super::youtubeservice::you_tube_service_client::YouTubeServiceClient;
+use tonic::transport::Channel;
 
 use crate::message::StringView;
 
 fn from_prost_timestamp(prost_timestamp: &prost_types::Timestamp) -> NaiveDateTime {
     NaiveDateTime::from_timestamp(prost_timestamp.seconds, prost_timestamp.nanos as u32)
+}
+
+pub struct ServiceDirectory<'a> {
+    pub userservice_client: &'a UserServiceClient<Channel>,
+    pub youtubeservice_client: &'a YouTubeServiceClient<Channel>,
 }
 
 /// A user that sent a message.

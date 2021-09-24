@@ -2,26 +2,18 @@ use async_trait::async_trait;
 use dyn_clone::DynClone;
 
 use super::CommandError;
-use super::userservice::user_service_client::UserServiceClient;
-use crate::structs::Message;
+use crate::structs::{Message, ServiceDirectory};
 
 /// Types that implement this trait can be registered as a command handler.
 ///
 /// This trait is an async_trait, which means that you can use async/await syntax.
 #[async_trait]
-pub trait Command<YT>: Send + Sync + DynClone where YT: YouTubeSendable + ?Sized {
-    async fn execute(&self, message: Message, sendable: &mut YT, user_client: &mut UserServiceClient<tonic::transport::Channel>) -> Result<(), CommandError>;
+pub trait Command: Send + Sync + DynClone {
+    async fn execute(&self, message: Message, service_directory: &mut ServiceDirectory) -> Result<(), CommandError>;
 }
-dyn_clone::clone_trait_object!(Command<dyn YouTubeSendable>);
+dyn_clone::clone_trait_object!(Command);
 
 /// Types that implement this trait register commands.
 pub trait CommandRegistrar {
-    fn register_command(&mut self, name: &str, aliases: &[&str], command: Box<dyn Command<dyn YouTubeSendable>>);
+    fn register_command(&mut self, name: &str, aliases: &[&str], command: Box<dyn Command>);
 }
-
-/// Types that implement this trait can send messages to YouTube.
-#[async_trait]
-pub trait YouTubeSendable: Send + Sync + DynClone {
-    async fn send_message(&mut self, message: &str);
-}
-dyn_clone::clone_trait_object!(YouTubeSendable);

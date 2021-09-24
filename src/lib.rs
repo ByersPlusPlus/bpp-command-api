@@ -21,6 +21,10 @@ pub mod userservice {
     tonic::include_proto!("userservice");
 }
 
+pub mod youtubeservice {
+    tonic::include_proto!("youtubeservice");
+}
+
 /// Information about the API that will be embedded into the library.
 pub struct CommandDeclaration {
     /// The rustc version that was used to compile API
