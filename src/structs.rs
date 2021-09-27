@@ -24,6 +24,8 @@ pub struct CommandUser {
     pub first_seen_at: NaiveDateTime,
     pub last_seen_at: NaiveDateTime,
     pub rank: String,
+    pub groups: Vec<super::userservice::BppGroup>,
+    pub permissions: Vec<super::userservice::Permission>
 }
 
 impl From<super::userservice::BppUser> for CommandUser {
@@ -38,6 +40,33 @@ impl From<super::userservice::BppUser> for CommandUser {
             first_seen_at: first_seen,
             last_seen_at: last_seen,
             rank: user.rank,
+            groups: user.groups,
+            permissions: user.permissions
+        }
+    }
+}
+
+impl From<CommandUser> for super::userservice::BppUser {
+    fn from(user: CommandUser) -> Self {
+        super::userservice::BppUser {
+            channel_id: user.channel_id,
+            display_name: user.display_name,
+            hours: Some(prost_types::Duration {
+                seconds: user.active_time,
+                nanos: 0,
+            }),
+            money: user.money,
+            first_seen_at: Some(prost_types::Timestamp {
+                seconds: user.first_seen_at.timestamp(),
+                nanos: user.first_seen_at.timestamp_subsec_nanos() as i32,
+            }),
+            last_seen_at: Some(prost_types::Timestamp {
+                seconds: user.last_seen_at.timestamp(),
+                nanos: user.last_seen_at.timestamp_subsec_nanos() as i32,
+            }),
+            groups: user.groups,
+            rank: user.rank,
+            permissions: user.permissions,
         }
     }
 }
